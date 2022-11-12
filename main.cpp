@@ -3,11 +3,11 @@
 int cpu_score = 0;
 int player_score = 0;
 
-Color Dark_Green = Color{20, 160, 133, 255};
 Color Grey = Color{63, 92, 108, 255};
 Color Green = Color{38, 185, 154, 255};
+Color Dark_Green = Color{20, 160, 133, 255};
 Color Light_Green = Color{129, 204, 184, 255};
-Color Light_Yellow = Color{243, 213, 91,255};
+Color Yellow = Color{243, 213, 91, 255};
 
 class Ball {
     public:
@@ -16,7 +16,7 @@ class Ball {
     int radius;
 
     void Draw() {
-        DrawCircle(x,y,radius, Light_Yellow);
+        DrawCircle(x,y,radius, Yellow);
     }
 
     void update(){
@@ -85,7 +85,6 @@ class CpuPaddle : public Paddle {
                 y = 0;     
             }
         }
-
         if ( y + height < ball_y + 15 ){
             y += speed;
             if (y >= GetScreenHeight() - height){
