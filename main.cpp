@@ -2,6 +2,11 @@
 
 int cpu_score = 0;
 int player_score = 0;
+Color Dark_Green = Color{20, 160, 133, 255};
+Color Grey = Color{63, 92, 108, 255};
+Color Light_Green = Color{38, 185, 154, 255};
+Color Ultra_Light_Green = Color{129, 204, 184, 255};
+Color Light_Yellow = Color{243, 213, 91,255};
 
 class Ball {
     public:
@@ -10,7 +15,7 @@ class Ball {
     int radius;
 
     void Draw() {
-        DrawCircle(x,y,radius, WHITE);
+        DrawCircle(x,y,radius, Light_Yellow);
     }
 
     void update(){
@@ -39,19 +44,20 @@ class Ball {
         int speed_choices[2] = {-1,1}; 
         speed_x *= speed_choices[GetRandomValue(0,1)];
         speed_y *= speed_choices[GetRandomValue(0,1)];
-        x = GetScreenWidth()/2 -radius;
-        y = 20;
+        x = GetScreenWidth()/2;
+        y = GetScreenHeight()/2;
     }
 };
 
 class Paddle {
     public:
     float x, y;
-    int width, height;
+    float width, height;
     int speed;
 
     void Draw(){
-        DrawRectangle(x, y, width, height, WHITE);
+        //DrawRectangle(x, y, width, height, WHITE);
+        DrawRectangleRounded(Rectangle{x,y,width,height}, 0.8f, 0, WHITE);
     }
 
     void update() {
@@ -116,12 +122,12 @@ int main () {
     cpu.height = 100;
     cpu.width = 20;
     cpu.speed = 6;
-    cpu.x = 0;
+    cpu.x = 10;
     cpu.y = screenHeight/2 - cpu.height/2;
 
     player.height = 100;
     player.width = 20;
-    player.x = screenWidth - 20;
+    player.x = screenWidth - 30;
     player.y = screenHeight/2 - player.height/2;
     player.speed = 6;
 
@@ -130,7 +136,10 @@ int main () {
 
     while (WindowShouldClose() == false){
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(Dark_Green);
+        DrawRectangle(screenWidth/2, 0, screenWidth/2, screenHeight, Light_Green);
+
+        DrawCircle(screenWidth/2, screenHeight/2, 100, Ultra_Light_Green);
 
         DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight, WHITE);     
         ball.update();
@@ -145,16 +154,14 @@ int main () {
             ball.speed_x *= -1;
         }
 
-
         player.update();
         cpu.update(ball.y);
 
         ball.Draw();
         cpu.Draw();
         player.Draw();
-
-        DrawText(TextFormat("%i", cpu_score),screenWidth/4-40,20,80,WHITE);
-        DrawText(TextFormat("%i", player_score),3*screenWidth/4-40,20,80,WHITE);
+        DrawText(TextFormat("%i", cpu_score),screenWidth/4-20,20,80,WHITE);
+        DrawText(TextFormat("%i", player_score),3*screenWidth/4-20,20,80,WHITE);
 
         EndDrawing();
     }
