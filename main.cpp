@@ -2,6 +2,7 @@
 
 int cpu_score = 0;
 int player_score = 0;
+
 Color Dark_Green = Color{20, 160, 133, 255};
 Color Grey = Color{63, 92, 108, 255};
 Color Light_Green = Color{38, 185, 154, 255};
@@ -22,20 +23,17 @@ class Ball {
         x += speed_x;
         y += speed_y;
 
-        if(x + radius >= GetScreenWidth()) //Cpu wins a point
-        {
+        if(x + radius >= GetScreenWidth()){
             cpu_score += 1;
             reset_ball();
         }
 
-        if(x - radius <= 0) // Player wins a point
-        {
+        if(x - radius <= 0){
             player_score += 1;
             reset_ball();
         } 
 
-        if(y + radius >= GetScreenHeight() || y - radius <= 0)
-        {
+        if(y + radius >= GetScreenHeight() || y - radius <= 0){
             speed_y *= -1;
         }
     }
@@ -62,20 +60,16 @@ class Paddle {
 
     void update() {
 
-        if (IsKeyDown(KEY_DOWN))
-        {
+        if (IsKeyDown(KEY_DOWN)){
             y += speed;
-            if (y >= GetScreenHeight() - height)
-            {
+            if (y >= GetScreenHeight() - height){
                 y = GetScreenHeight() - height;     
             }
         }
 
-        if (IsKeyDown(KEY_UP))
-        {
+        if (IsKeyDown(KEY_UP)){
             y -= speed;
-            if (y <= 0)
-            {
+            if (y <= 0){
                 y = 0;     
             }
         }
@@ -87,28 +81,34 @@ class CpuPaddle : public Paddle {
     void update(int ball_y) {
         if ( y > ball_y - 15){
             y -= speed;
-            if (y <= 0)
-            {
+            if (y <= 0){
                 y = 0;     
             }
         }
 
-        if ( y + height < ball_y + 15 )
-        {
+        if ( y + height < ball_y + 15 ){
             y += speed;
-            if (y >= GetScreenHeight() - height)
-            {
+            if (y >= GetScreenHeight() - height){
                 y = GetScreenHeight() - height;     
             }
         }
     }
 };
 
-int main () {
+Ball ball;
+CpuPaddle cpu;
+Paddle player;
 
-    Ball ball;
-    CpuPaddle cpu;
-    Paddle player;
+void check_for_collissions(){
+        if(CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{cpu.x,cpu.y,20,100})){
+            ball.speed_x *= -1;
+        }
+        if(CheckCollisionCircleRec (Vector2{ball.x, ball.y}, ball.radius, Rectangle{player.x,player.y,20,100})){
+            ball.speed_x *= -1;
+        }
+}
+
+int main () {
 
     const int screenWidth = 800;
     const int screenHeight = 600;
@@ -138,22 +138,12 @@ int main () {
         BeginDrawing();
         ClearBackground(Dark_Green);
         DrawRectangle(screenWidth/2, 0, screenWidth/2, screenHeight, Light_Green);
-
         DrawCircle(screenWidth/2, screenHeight/2, 100, Ultra_Light_Green);
+        DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight, WHITE);    
 
-        DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight, WHITE);     
+        check_for_collissions(); 
+
         ball.update();
-
-        if(CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{cpu.x,cpu.y,20,100}) )
-        {
-            ball.speed_x *= -1;
-        }
-
-        if(CheckCollisionCircleRec (Vector2{ball.x, ball.y}, ball.radius, Rectangle{player.x,player.y,20,100}) )
-        {
-            ball.speed_x *= -1;
-        }
-
         player.update();
         cpu.update(ball.y);
 
