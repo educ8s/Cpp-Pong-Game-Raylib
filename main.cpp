@@ -54,7 +54,6 @@ class Paddle {
     int speed;
 
     void Draw(){
-        //DrawRectangle(x, y, width, height, WHITE);
         DrawRectangleRounded(Rectangle{x,y,width,height}, 0.8f, 0, WHITE);
     }
 
