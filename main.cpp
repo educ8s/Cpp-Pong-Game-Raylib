@@ -1,22 +1,52 @@
-#include <iostream>
 #include <raylib.h>
 
-using namespace std;
+int cpu_score = 0;
+int player_score = 0;
 
 class Ball {
     public:
-    int x, y;
+    float x, y;
     int speed_x, speed_y;
     int radius;
 
     void Draw() {
         DrawCircle(x,y,radius, WHITE);
     }
+
+    void update(){
+        x += speed_x;
+        y += speed_y;
+
+        if(x + radius >= GetScreenWidth()) //Cpu wins a point
+        {
+            cpu_score += 1;
+            reset_ball();
+        }
+
+        if(x - radius <= 0) // Player wins a point
+        {
+            player_score += 1;
+            reset_ball();
+        } 
+
+        if(y + radius >= GetScreenHeight() || y - radius <= 0)
+        {
+            speed_y *= -1;
+        }
+    }
+
+    void reset_ball() {
+        int speed_choices[2] = {-1,1}; 
+        speed_x *= speed_choices[GetRandomValue(0,1)];
+        speed_y *= speed_choices[GetRandomValue(0,1)];
+        x = GetScreenWidth()/2 -radius;
+        y = 20;
+    }
 };
 
 class Paddle {
     public:
-    int x, y;
+    float x, y;
     int width, height;
     int speed;
 
@@ -76,10 +106,11 @@ int main () {
 
     const int screenWidth = 800;
     const int screenHeight = 600;
+
     ball.x = screenWidth/2;
     ball.y = screenHeight/2;
-    ball.speed_x = 5;
-    ball.speed_y = 5;
+    ball.speed_x = 7;
+    ball.speed_y = 7;
     ball.radius = 15;
 
     cpu.height = 100;
@@ -94,8 +125,6 @@ int main () {
     player.y = screenHeight/2 - player.height/2;
     player.speed = 6;
 
-    cout << "Hello World" << endl;
-
     InitWindow(screenWidth, screenHeight, "My Pong Game!");
     SetTargetFPS(60);
 
@@ -103,18 +132,19 @@ int main () {
         BeginDrawing();
         ClearBackground(BLACK);
 
-        ball.x += ball.speed_x;
-        ball.y += ball.speed_y;
+        DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight, WHITE);     
+        ball.update();
 
-        if(ball.x + ball.radius >= screenWidth  || ball.x - ball.radius <= 0)
+        if(CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{cpu.x,cpu.y,20,100}) )
         {
             ball.speed_x *= -1;
         }
 
-        if(ball.y + ball.radius >= screenHeight  || ball.y - ball.radius <= 0)
+        if(CheckCollisionCircleRec (Vector2{ball.x, ball.y}, ball.radius, Rectangle{player.x,player.y,20,100}) )
         {
-            ball.speed_y *= -1;
+            ball.speed_x *= -1;
         }
+
 
         player.update();
         cpu.update(ball.y);
@@ -123,8 +153,10 @@ int main () {
         cpu.Draw();
         player.Draw();
 
+        DrawText(TextFormat("%i", cpu_score),screenWidth/4-40,20,80,WHITE);
+        DrawText(TextFormat("%i", player_score),3*screenWidth/4-40,20,80,WHITE);
+
         EndDrawing();
     }
-
     return 0;
 }

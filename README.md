@@ -1,2 +1,2 @@
-# Cpp Pong Game Raylib
- A C++ Pong game developed with the Raylib library.
+# raylib-vscode-template
+raylib template for Visual Studio Code
