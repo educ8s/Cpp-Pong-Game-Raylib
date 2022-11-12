@@ -5,8 +5,8 @@ int player_score = 0;
 
 Color Dark_Green = Color{20, 160, 133, 255};
 Color Grey = Color{63, 92, 108, 255};
-Color Light_Green = Color{38, 185, 154, 255};
-Color Ultra_Light_Green = Color{129, 204, 184, 255};
+Color Green = Color{38, 185, 154, 255};
+Color Light_Green = Color{129, 204, 184, 255};
 Color Light_Yellow = Color{243, 213, 91,255};
 
 class Ball {
@@ -137,8 +137,8 @@ int main () {
     while (WindowShouldClose() == false){
         BeginDrawing();
         ClearBackground(Dark_Green);
-        DrawRectangle(screenWidth/2, 0, screenWidth/2, screenHeight, Light_Green);
-        DrawCircle(screenWidth/2, screenHeight/2, 100, Ultra_Light_Green);
+        DrawRectangle(screenWidth/2, 0, screenWidth/2, screenHeight, Green);
+        DrawCircle(screenWidth/2, screenHeight/2, 100, Light_Green);
         DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight, WHITE);    
 
         check_for_collissions(); 
@@ -152,7 +152,6 @@ int main () {
         player.Draw();
         DrawText(TextFormat("%i", cpu_score),screenWidth/4-20,20,80,WHITE);
         DrawText(TextFormat("%i", player_score),3*screenWidth/4-20,20,80,WHITE);
-
         EndDrawing();
     }
     return 0;
