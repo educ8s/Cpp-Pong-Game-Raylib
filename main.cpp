@@ -1,156 +1,185 @@
+#include <iostream>
 #include <raylib.h>
 
-int cpu_score = 0;
-int player_score = 0;
-
-Color Grey = Color{63, 92, 108, 255};
 Color Green = Color{38, 185, 154, 255};
 Color Dark_Green = Color{20, 160, 133, 255};
 Color Light_Green = Color{129, 204, 184, 255};
 Color Yellow = Color{243, 213, 91, 255};
 
-class Ball {
-    public:
+using namespace std;
+
+class Paddle
+{
+
+protected:
+    void LimitMovement()
+    {
+        if (y <= 0)
+        {
+            y = 0;
+        }
+        if (y + height >= GetScreenHeight())
+        {
+            y = GetScreenHeight() - height;
+        }
+    }
+
+public:
+    float x, y;
+    float width, height;
+    int speed;
+    int score = 0;
+
+    void Draw()
+    {
+        // DrawRectangle(x, y, width, height, WHITE);
+        DrawRectangleRounded(Rectangle{x, y, width, height}, 0.8f, 0, WHITE);
+    }
+
+    void Update()
+    {
+        if (IsKeyDown(KEY_DOWN))
+        {
+            y = y + speed;
+        }
+
+        if (IsKeyDown(KEY_UP))
+        {
+            y -= speed;
+        }
+        LimitMovement();
+    }
+};
+
+class CpuPaddle : public Paddle
+{
+public:
+    void Update(int ball_y)
+    {
+        if (y + height / 2 > ball_y)
+        {
+            y = y - speed;
+        }
+
+        if (y + height / 2 < ball_y)
+        {
+            y = y + speed;
+        }
+        LimitMovement();
+    }
+};
+
+class Ball
+{
+public:
     float x, y;
     int speed_x, speed_y;
     int radius;
 
-    void Draw() {
-        DrawCircle(x,y,radius, Yellow);
+    void Draw()
+    {
+        DrawCircle(x, y, radius, Yellow);
     }
 
-    void update(){
-        x += speed_x;
-        y += speed_y;
+    void Update(Paddle &player, CpuPaddle &cpu)
+    {
+        x = x + speed_x;
+        y = y + speed_y;
 
-        if(x + radius >= GetScreenWidth()){
-            cpu_score += 1;
-            reset_ball();
-        }
-
-        if(x - radius <= 0){
-            player_score += 1;
-            reset_ball();
-        } 
-
-        if(y + radius >= GetScreenHeight() || y - radius <= 0){
+        if (y + radius >= GetScreenHeight() || y - radius <= 0)
+        {
             speed_y *= -1;
         }
-    }
 
-    void reset_ball() {
-        int speed_choices[2] = {-1,1}; 
-        speed_x *= speed_choices[GetRandomValue(0,1)];
-        speed_y *= speed_choices[GetRandomValue(0,1)];
-        x = GetScreenWidth()/2;
-        y = GetScreenHeight()/2;
-    }
-};
-
-class Paddle {
-    public:
-    float x, y;
-    float width, height;
-    int speed;
-
-    void Draw(){
-        DrawRectangleRounded(Rectangle{x,y,width,height}, 0.8f, 0, WHITE);
-    }
-
-    void update() {
-
-        if (IsKeyDown(KEY_DOWN)){
-            y += speed;
-            if (y >= GetScreenHeight() - height){
-                y = GetScreenHeight() - height;     
-            }
+        if (x + radius >= GetScreenWidth()) // Computer Wins
+        {
+            cpu.score++;
+            ResetBall();
         }
 
-        if (IsKeyDown(KEY_UP)){
-            y -= speed;
-            if (y <= 0){
-                y = 0;     
-            }
+        if (x - radius <= 0) // Player Wins
+        {
+            player.score++;
+            ResetBall();
         }
     }
-};
 
-class CpuPaddle : public Paddle {
-   public:
-    void update(int ball_y) {
-        if ( y > ball_y - 15){
-            y -= speed;
-            if (y <= 0){
-                y = 0;     
-            }
-        }
-        if ( y + height < ball_y + 15 ){
-            y += speed;
-            if (y >= GetScreenHeight() - height){
-                y = GetScreenHeight() - height;     
-            }
-        }
+    void ResetBall()
+    {
+        int speed_choices[2] = {-1, 1};
+        speed_x *= speed_choices[GetRandomValue(0, 1)];
+        speed_y *= speed_choices[GetRandomValue(0, 1)];
+        x = GetScreenWidth() / 2;
+        y = GetScreenHeight() / 2;
     }
 };
 
 Ball ball;
-CpuPaddle cpu;
 Paddle player;
+CpuPaddle cpu;
 
-void check_for_collissions(){
-        if(CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{cpu.x,cpu.y,20,100})){
-            ball.speed_x *= -1;
-        }
-        if(CheckCollisionCircleRec (Vector2{ball.x, ball.y}, ball.radius, Rectangle{player.x,player.y,20,100})){
-            ball.speed_x *= -1;
-        }
-}
+int main()
+{
+    cout << "Starting the game." << endl;
 
-int main () {
+    const int screen_width = 1280;
+    const int screen_height = 800;
 
-    const int screenWidth = 800;
-    const int screenHeight = 600;
-
-    ball.x = screenWidth/2;
-    ball.y = screenHeight/2;
+    ball.x = screen_width / 2;
+    ball.y = screen_height / 2;
     ball.speed_x = 7;
     ball.speed_y = 7;
     ball.radius = 15;
 
-    cpu.height = 100;
-    cpu.width = 20;
-    cpu.speed = 6;
-    cpu.x = 10;
-    cpu.y = screenHeight/2 - cpu.height/2;
-
-    player.height = 100;
-    player.width = 20;
-    player.x = screenWidth - 30;
-    player.y = screenHeight/2 - player.height/2;
+    player.width = 25;
+    player.height = 120;
+    player.x = screen_width - player.width - 10;
+    player.y = screen_height / 2 - player.height / 2;
     player.speed = 6;
+    player.score = 0;
 
-    InitWindow(screenWidth, screenHeight, "My Pong Game!");
+    cpu.height = 120;
+    cpu.width = 25;
+    cpu.x = 10;
+    cpu.y = screen_height / 2 - cpu.height / 2;
+    cpu.speed = 6;
+    cpu.score = 0;
+
+    InitWindow(screen_width, screen_height, "My Pong Game!");
     SetTargetFPS(60);
 
-    while (WindowShouldClose() == false){
+    while (WindowShouldClose() == false)
+    {
         BeginDrawing();
+
+        // Updating
+        ball.Update(player, cpu);
+        player.Update();
+        cpu.Update(ball.y);
+
+        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{player.x, player.y, player.width, player.height}))
+        {
+            ball.speed_x *= -1;
+        }
+        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{cpu.x, cpu.y, cpu.width, cpu.height}))
+        {
+            ball.speed_x *= -1;
+        }
+
+        // Drawing
         ClearBackground(Dark_Green);
-        DrawRectangle(screenWidth/2, 0, screenWidth/2, screenHeight, Green);
-        DrawCircle(screenWidth/2, screenHeight/2, 100, Light_Green);
-        DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight, WHITE);    
-
-        check_for_collissions(); 
-
-        ball.update();
-        player.update();
-        cpu.update(ball.y);
-
+        DrawRectangle(screen_width / 2, 0, screen_width / 2, screen_height, Green);
+        DrawCircle(screen_width / 2, screen_height / 2, 150, Light_Green);
+        DrawLine(screen_width / 2, 0, screen_width / 2, screen_height, WHITE);
         ball.Draw();
-        cpu.Draw();
         player.Draw();
-        DrawText(TextFormat("%i", cpu_score),screenWidth/4-20,20,80,WHITE);
-        DrawText(TextFormat("%i", player_score),3*screenWidth/4-20,20,80,WHITE);
+        cpu.Draw();
+        DrawText(TextFormat("%i", cpu.score), screen_width / 4 - 20, 20, 80, WHITE);
+        DrawText(TextFormat("%i", player.score), 3 * screen_width / 4 - 20, 20, 80, WHITE);
+
         EndDrawing();
     }
+
+    CloseWindow();
     return 0;
 }
