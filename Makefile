@@ -197,7 +197,7 @@ endif
 CFLAGS += -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces
 
 ifeq ($(BUILD_MODE),DEBUG)
-    CFLAGS += -g -O0
+    CFLAGS += -g -O3
 else
     CFLAGS += -s -O1
 endif

@@ -1,7 +1,5 @@
-#include <iostream>
 #include <raylib.h>
-
-using namespace std;
+#include <iostream>
 
 Color Green = Color{38, 185, 154, 255};
 Color Dark_Green = Color{20, 160, 133, 255};
@@ -11,42 +9,36 @@ Color Yellow = Color{243, 213, 91, 255};
 int player_score = 0;
 int cpu_score = 0;
 
-class Ball
-{
-public:
+class Ball {
+ public:
     float x, y;
     int speed_x, speed_y;
     int radius;
 
-    void Draw()
-    {
+    void Draw() {
         DrawCircle(x, y, radius, Yellow);
     }
 
-    void Update()
-    {
+    void Update() {
         x += speed_x;
         y += speed_y;
 
-        if (y + radius >= GetScreenHeight() || y - radius <= 0)
-        {
+        if (y + radius >= GetScreenHeight() || y - radius <= 0) {
             speed_y *= -1;
         }
-        if (x + radius >= GetScreenWidth()) // Cpu wins
-        {
+        // Cpu wins
+        if (x + radius >= GetScreenWidth()) {
             cpu_score++;
             ResetBall();
         }
 
-        if (x - radius <= 0)
-        {
+        if (x - radius <= 0) {
             player_score++;
             ResetBall();
         }
     }
 
-    void ResetBall()
-    {
+    void ResetBall() {
         x = GetScreenWidth() / 2;
         y = GetScreenHeight() / 2;
 
@@ -56,57 +48,44 @@ public:
     }
 };
 
-class Paddle
-{
-
-protected:
-    void LimitMovement()
-    {
-        if (y <= 0)
-        {
+class Paddle {
+ protected:
+    void LimitMovement() {
+        if (y <= 0) {
             y = 0;
         }
-        if (y + height >= GetScreenHeight())
-        {
+        if (y + height >= GetScreenHeight()) {
             y = GetScreenHeight() - height;
         }
     }
 
-public:
+ public:
     float x, y;
     float width, height;
     int speed;
 
-    void Draw()
-    {
+    void Draw() {
         DrawRectangleRounded(Rectangle{x, y, width, height}, 0.8, 0, WHITE);
     }
 
-    void Update()
-    {
-        if (IsKeyDown(KEY_UP))
-        {
+    void Update() {
+        if (IsKeyDown(KEY_UP)) {
             y = y - speed;
         }
-        if (IsKeyDown(KEY_DOWN))
-        {
+        if (IsKeyDown(KEY_DOWN)) {
             y = y + speed;
         }
         LimitMovement();
     }
 };
 
-class CpuPaddle : public Paddle
-{
-public:
-    void Update(int ball_y)
-    {
-        if (y + height / 2 > ball_y)
-        {
+class CpuPaddle : public Paddle {
+ public:
+    void Update(int ball_y){
+        if (y + height / 2 > ball_y) {
             y = y - speed;
         }
-        if (y + height / 2 <= ball_y)
-        {
+        if (y + height / 2 <= ball_y) {
             y = y + speed;
         }
         LimitMovement();
@@ -117,14 +96,12 @@ Ball ball;
 Paddle player;
 CpuPaddle cpu;
 
-int main()
-{
-    cout << "Starting the game" << endl;
+int main() {
+    std::cout << "Starting the game" << std::endl;
     const int screen_width = 1280;
     const int screen_height = 800;
     InitWindow(screen_width, screen_height, "My Pong Game!");
     SetTargetFPS(60);
-
     ball.radius = 20;
     ball.x = screen_width / 2;
     ball.y = screen_height / 2;
@@ -143,23 +120,21 @@ int main()
     cpu.y = screen_height / 2 - cpu.height / 2;
     cpu.speed = 6;
 
-    while (WindowShouldClose() == false)
-    {
+    while (WindowShouldClose() == false) {
         BeginDrawing();
 
         // Updating
+
         ball.Update();
         player.Update();
         cpu.Update(ball.y);
 
         // Checking for collisions
-        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{player.x, player.y, player.width, player.height}))
-        {
+        if (CheckCollisionCircleRec({ball.x, ball.y}, ball.radius, {player.x, player.y, player.width, player.height})) {
             ball.speed_x *= -1;
         }
 
-        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{cpu.x, cpu.y, cpu.width, cpu.height}))
-        {
+        if (CheckCollisionCircleRec({ball.x, ball.y}, ball.radius, {cpu.x, cpu.y, cpu.width, cpu.height})) {
             ball.speed_x *= -1;
         }
 
