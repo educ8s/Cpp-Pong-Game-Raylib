@@ -19,6 +19,5 @@ Tested on both Windows 10 and Windows 11.
 <br>
 <p align="center">
 | 📺 <a href="https://www.youtube.com/channel/UC3ivOTE5EgpmF2DHLBmWIWg">My YouTube Channel</a>
-| 🌍 <a href="https://www.programmingwithnick.com
-)">My Website</a> | <br>
+| 🌍 <a href="https://www.programmingwithnick.com">My Website</a> | <br>
 </p>
